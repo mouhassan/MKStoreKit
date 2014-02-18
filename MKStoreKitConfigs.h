@@ -41,6 +41,17 @@
 // #define kConsumableFeatureBId @"com.mycompany.myapp.005"
 // #define FishBasket @"FishBasket"
 
+// Define MKSTOREKIT_CUSTOM_HEADER in build settings to include custom copy
+// of MKStoreKitConfigs.h (named MKStoreKitConfigsC.h) to avoid editing
+// MKStoreKitConfigs.h directly.
+// This is to seperate app customization from general source file in library
+// repository
+#ifdef MKSTOREKIT_CUSTOM_HEADER
+
+#import "MKStoreKitConfigsC.h"
+
+#else //#ifdef MKSTOREKIT_CUSTOM_HEADER
+
 #ifndef SERVER_PRODUCT_MODEL
     #define SERVER_PRODUCT_MODEL 0
 #endif
@@ -57,3 +68,5 @@
 #ifndef kSharedSecret
     #define kSharedSecret @"<FILL IN YOUR SHARED SECRET HERE>"
 #endif
+
+#endif //#ifdef MKSTOREKIT_CUSTOM_HEADER
