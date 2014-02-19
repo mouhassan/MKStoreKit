@@ -291,6 +291,26 @@ static MKStoreManager* _sharedStoreManager;
   }
 }
 
+- (BOOL) removeAlliCloudePurchaseData {
+    
+    NSMutableArray *productsArray = [MKStoreManager allProducts];
+    int itemCount = productsArray.count;
+    NSError *error;
+    
+    //loop through all the saved iCloude purchase data and remove it
+    for (int i = 0; i < itemCount; i++ ) {
+        [[NSUbiquitousKeyValueStore defaultStore] removeObjectForKey:[productsArray objectAtIndex:i]];
+    }
+    [[NSUbiquitousKeyValueStore defaultStore] synchronize];
+    if (!error) {
+        return YES;
+    }
+    else {
+        return NO;
+    }
+    
+}
+
 - (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response
 {
 	[self.purchasableObjects addObjectsFromArray:response.products];
