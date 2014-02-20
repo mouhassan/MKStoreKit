@@ -731,6 +731,9 @@ static MKStoreManager* _sharedStoreManager;
   }
   
   [MKStoreManager setObject:receiptData forKey:[NSString stringWithFormat:@"%@-receipt", productIdentifier]];
+    
+    // post notification about purchased product
+    [[NSNotificationCenter defaultCenter] postNotificationName:kProductsPurchasedNotification object:productIdentifier];
 }
 
 #pragma -
@@ -773,6 +776,9 @@ static MKStoreManager* _sharedStoreManager;
 - (void)paymentQueueRestoreCompletedTransactionsFinished:(SKPaymentQueue *)queue
 {
   [self restoreCompleted];
+    
+    // send notification about pruchased products
+    [[NSNotificationCenter defaultCenter] postNotificationName:kProductsPurchasedNotification object:nil];
 }
 
 - (void) failedTransaction: (SKPaymentTransaction *)transaction

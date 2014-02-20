@@ -46,6 +46,7 @@
 #endif
 
 #define kProductFetchedNotification @"MKStoreKitProductsFetched"
+#define kProductsPurchasedNotification @"MKStoreKitProductsPurchased"
 #define kSubscriptionsPurchasedNotification @"MKStoreKitSubscriptionsPurchased"
 #define kSubscriptionsInvalidNotification @"MKStoreKitSubscriptionsInvalid"
 
