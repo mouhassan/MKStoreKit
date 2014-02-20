@@ -60,6 +60,8 @@
 
 @property (nonatomic, strong) SKProductsRequest *productsRequest;
 
+@property (nonatomic, assign) BOOL isLastProductRequestFailed;
+
 - (void) requestProductData;
 - (void) startVerifyingSubscriptionReceipts;
 -(void) rememberPurchaseOfProduct:(NSString*) productIdentifier withReceipt:(NSData*) receiptData;
@@ -195,6 +197,11 @@ static MKStoreManager* _sharedStoreManager;
     
     
   }
+    // try to refresh product list of last request failed
+    if ([_sharedStoreManager isLastProductRequestFailed]) {
+        [_sharedStoreManager requestProductData];
+    }
+    
   return _sharedStoreManager;
 }
 
@@ -241,6 +248,9 @@ static MKStoreManager* _sharedStoreManager;
   [productsArray addObjectsFromArray:nonConsumables];
   [productsArray addObjectsFromArray:subscriptions];
   
+    // reset status of last product request
+    self.isLastProductRequestFailed = NO;
+    
 	self.productsRequest = [[SKProductsRequest alloc] initWithProductIdentifiers:[NSSet setWithArray:productsArray]];
 	self.productsRequest.delegate = self;
 	[self.productsRequest start];
@@ -336,6 +346,7 @@ static MKStoreManager* _sharedStoreManager;
 - (void)request:(SKRequest *)request didFailWithError:(NSError *)error
 {
 	self.isProductsAvailable = NO;
+    self.isLastProductRequestFailed = YES;
   [[NSNotificationCenter defaultCenter] postNotificationName:kProductFetchedNotification
                                                       object:[NSNumber numberWithBool:self.isProductsAvailable]];
 	self.productsRequest = nil;
