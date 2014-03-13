@@ -60,6 +60,8 @@
 
 @property (nonatomic, strong) SKProductsRequest *productsRequest;
 
+@property (nonatomic, assign) BOOL isLastProductRequestFailed;
+
 - (void) requestProductData;
 - (void) startVerifyingSubscriptionReceipts;
 -(void) rememberPurchaseOfProduct:(NSString*) productIdentifier withReceipt:(NSData*) receiptData;
@@ -195,6 +197,11 @@ static MKStoreManager* _sharedStoreManager;
     
     
   }
+    // try to refresh product list of last request failed
+    if ([_sharedStoreManager isLastProductRequestFailed]) {
+        [_sharedStoreManager requestProductData];
+    }
+    
   return _sharedStoreManager;
 }
 
@@ -241,6 +248,9 @@ static MKStoreManager* _sharedStoreManager;
   [productsArray addObjectsFromArray:nonConsumables];
   [productsArray addObjectsFromArray:subscriptions];
   
+    // reset status of last product request
+    self.isLastProductRequestFailed = NO;
+    
 	self.productsRequest = [[SKProductsRequest alloc] initWithProductIdentifiers:[NSSet setWithArray:productsArray]];
 	self.productsRequest.delegate = self;
 	[self.productsRequest start];
@@ -291,6 +301,26 @@ static MKStoreManager* _sharedStoreManager;
   }
 }
 
+- (BOOL) removeAlliCloudePurchaseData {
+    
+    NSMutableArray *productsArray = [MKStoreManager allProducts];
+    int itemCount = productsArray.count;
+    NSError *error;
+    
+    //loop through all the saved iCloude purchase data and remove it
+    for (int i = 0; i < itemCount; i++ ) {
+        [[NSUbiquitousKeyValueStore defaultStore] removeObjectForKey:[productsArray objectAtIndex:i]];
+    }
+    [[NSUbiquitousKeyValueStore defaultStore] synchronize];
+    if (!error) {
+        return YES;
+    }
+    else {
+        return NO;
+    }
+    
+}
+
 - (void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response
 {
 	[self.purchasableObjects addObjectsFromArray:response.products];
@@ -316,6 +346,7 @@ static MKStoreManager* _sharedStoreManager;
 - (void)request:(SKRequest *)request didFailWithError:(NSError *)error
 {
 	self.isProductsAvailable = NO;
+    self.isLastProductRequestFailed = YES;
   [[NSNotificationCenter defaultCenter] postNotificationName:kProductFetchedNotification
                                                       object:[NSNumber numberWithBool:self.isProductsAvailable]];
 	self.productsRequest = nil;
@@ -700,6 +731,9 @@ static MKStoreManager* _sharedStoreManager;
   }
   
   [MKStoreManager setObject:receiptData forKey:[NSString stringWithFormat:@"%@-receipt", productIdentifier]];
+    
+    // post notification about purchased product
+    [[NSNotificationCenter defaultCenter] postNotificationName:kProductsPurchasedNotification object:productIdentifier];
 }
 
 #pragma -
@@ -742,6 +776,9 @@ static MKStoreManager* _sharedStoreManager;
 - (void)paymentQueueRestoreCompletedTransactionsFinished:(SKPaymentQueue *)queue
 {
   [self restoreCompleted];
+    
+    // send notification about pruchased products
+    [[NSNotificationCenter defaultCenter] postNotificationName:kProductsPurchasedNotification object:nil];
 }
 
 - (void) failedTransaction: (SKPaymentTransaction *)transaction
