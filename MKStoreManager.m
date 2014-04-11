@@ -286,7 +286,7 @@ static MKStoreManager* _sharedStoreManager;
 - (BOOL) removeAllKeychainData {
   
   NSMutableArray *productsArray = [MKStoreManager allProducts];
-  int itemCount = productsArray.count;
+  int itemCount = (int) productsArray.count;
   NSError *error;
   
   //loop through all the saved keychain data and remove it
@@ -304,7 +304,7 @@ static MKStoreManager* _sharedStoreManager;
 - (BOOL) removeAlliCloudePurchaseData {
     
     NSMutableArray *productsArray = [MKStoreManager allProducts];
-    int itemCount = productsArray.count;
+    int itemCount = (int) productsArray.count;
     NSError *error;
     
     //loop through all the saved iCloude purchase data and remove it
@@ -497,7 +497,7 @@ static MKStoreManager* _sharedStoreManager;
   if ([SKPaymentQueue canMakePayments])
 	{
     NSArray *allIds = [self.purchasableObjects valueForKey:@"productIdentifier"];
-    int index = [allIds indexOfObject:productId];
+    NSUInteger index = [allIds indexOfObject:productId];
     
     if(index == NSNotFound) return;
     
