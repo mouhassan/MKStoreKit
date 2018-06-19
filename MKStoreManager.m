@@ -54,7 +54,7 @@
 @property (nonatomic, copy) void (^onTransactionCompleted)(NSString *productId, NSData* receiptData, NSArray* downloads);
 
 @property (nonatomic, copy) void (^onRestoreFailed)(NSError* error);
-@property (nonatomic, copy) void (^onRestoreCompleted)();
+@property (nonatomic, copy) void (^onRestoreCompleted)(void);
 
 @property (nonatomic, assign, getter=isProductsAvailable) BOOL isProductsAvailable;
 
